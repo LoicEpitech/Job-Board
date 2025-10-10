@@ -1,0 +1,164 @@
+.applicationsContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 3rem 2rem;
+}
+
+.applicationsWrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.applicationsWrapper h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.loading,
+.noApplications {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #4a5568;
+  padding: 3rem;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.applicationsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.applicationItem {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out;
+  border-left: 5px solid #667eea;
+}
+
+.applicationItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.2);
+}
+
+.applicationItem strong {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.8rem;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: capitalize;
+}
+
+.statusBadge.pending {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+}
+
+.statusBadge.accepted {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+}
+
+.statusBadge.rejected {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+}
+
+.applicationDate {
+  display: block;
+  margin-top: 0.8rem;
+  color: #718096;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.applicationDate::before {
+  content: "📅 ";
+  margin-right: 0.3rem;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .applicationsContainer {
+    padding: 2rem 1rem;
+  }
+
+  .applicationsWrapper h2 {
+    font-size: 2rem;
+  }
+
+  .applicationItem {
+    padding: 1.5rem;
+  }
+
+  .applicationItem strong {
+    font-size: 1.1rem;
+  }
+
+  .statusBadge {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: fit-content;
+  }
+}
+
+@media (max-width: 480px) {
+  .applicationsWrapper h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .applicationsList {
+    gap: 1rem;
+  }
+
+  .applicationItem {
+    padding: 1.2rem;
+  }
+}

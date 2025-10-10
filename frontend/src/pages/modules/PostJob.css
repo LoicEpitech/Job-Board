@@ -1,0 +1,189 @@
+.postJobContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 3rem 2rem;
+}
+
+.postJobWrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.postJobWrapper h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #667eea;
+}
+
+.postJobForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.postJobForm label {
+  display: block;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.postJobForm input,
+.postJobForm textarea,
+.postJobForm select {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f7fafc;
+  font-family: inherit;
+}
+
+.postJobForm textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.postJobForm input:focus,
+.postJobForm textarea:focus,
+.postJobForm select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.postJobForm input::placeholder,
+.postJobForm textarea::placeholder {
+  color: #a0aec0;
+}
+
+.postJobForm select {
+  cursor: pointer;
+}
+
+.postJobForm select option {
+  padding: 0.5rem;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #006bf7 0%, #139cf7 50%, #764ba2);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submitBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.submitBtn:active {
+  transform: translateY(-1px);
+}
+
+.message {
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideDown 0.4s ease-out;
+}
+
+.message.success {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 2px solid #86efac;
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.15);
+}
+
+.message.error {
+  background-color: #fee;
+  color: #c53030;
+  border: 2px solid #fc8181;
+  box-shadow: 0 4px 12px rgba(197, 48, 48, 0.15);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .postJobContainer {
+    padding: 2rem 1rem;
+  }
+
+  .postJobWrapper {
+    padding: 2rem;
+  }
+
+  .postJobWrapper h2 {
+    font-size: 1.8rem;
+  }
+
+  .postJobForm {
+    gap: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .postJobWrapper {
+    padding: 1.5rem;
+  }
+
+  .postJobWrapper h2 {
+    font-size: 1.5rem;
+  }
+
+  .postJobForm input,
+  .postJobForm textarea,
+  .postJobForm select {
+    padding: 0.8rem 1rem;
+  }
+
+  .submitBtn {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,186 @@
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #006bf7 0%, #139cf7 50%, #764ba2);
+  padding: 2rem;
+}
+
+.loginContainer h2 {
+  margin-top: 5rem;
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.loginForm {
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 450px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.loginForm label {
+  display: block;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.loginForm label:first-of-type {
+  margin-top: 0;
+}
+
+.loginForm input {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f7fafc;
+}
+
+.loginForm input:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.loginForm input::placeholder {
+  color: #a0aec0;
+}
+
+.btnLogin {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0042f7 0%, #139cf7 50%, #764ba2);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  margin-top: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btnLogin:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.btnLogin:active {
+  transform: translateY(-1px);
+}
+
+.loginContainer p {
+  color: #ffffff;
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.loginContainer p a {
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: underline;
+  transition: opacity 0.3s ease;
+}
+
+.loginContainer p a:hover {
+  opacity: 0.8;
+}
+
+.message {
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideDown 0.4s ease-out;
+  background-color: #fee;
+  color: #c53030;
+  border: 2px solid #fc8181;
+  box-shadow: 0 4px 12px rgba(197, 48, 48, 0.15);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loginContainer h2 {
+    font-size: 2rem;
+  }
+
+  .loginForm {
+    padding: 2rem;
+    max-width: 100%;
+  }
+
+  .btnLogin {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginContainer {
+    padding: 1rem;
+  }
+
+  .loginContainer h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loginForm {
+    padding: 1.5rem;
+  }
+
+  .loginForm input {
+    padding: 0.8rem 1rem;
+  }
+}

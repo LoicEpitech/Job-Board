@@ -1,0 +1,193 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2e6ec2;
+  padding: 15px 30px;
+  color: white;
+}
+
+.navbarLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* espace entre logo et titre */
+}
+
+.logoImg {
+  height: 40px;
+  width: auto;
+}
+
+.navbarLogo h1 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+}
+.navbarLogo h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  transition: transform 0.3s ease;
+}
+
+.navbarLogo h1:hover {
+  transform: scale(1.05);
+}
+
+.navbarLinks {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.navbarLinks a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navbarLinks a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+}
+
+.navbarLinks a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.navbarLinks a:hover::after {
+  width: 80%;
+}
+
+.navbarActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btnLogin,
+.btnRegister {
+  padding: 0.6rem 1.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.btnLogin {
+  color: #ffffff;
+  background-color: transparent;
+  border: 2px solid #ffffff;
+}
+
+.btnLogin:hover {
+  background-color: #ffffff;
+  color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.btnRegister {
+  color: #667eea;
+  background-color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.btnRegister:hover {
+  background-color: transparent;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+/* modules/Header.module.css ou équivalent */
+
+.btnProfile {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btnProfile:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnProfile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: block;
+}
+
+.btnLogout {
+  background-color: #ff4d4f; /* rouge vif */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btnLogout:hover {
+  background-color: #ff7875;
+  transform: translateY(-2px);
+}
+
+.btnLogout:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .navbarLogo h1 {
+    font-size: 1.5rem;
+  }
+
+  .navbarLinks {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .navbarLinks a {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .navbarActions {
+    gap: 0.5rem;
+  }
+
+  .btnLogin,
+  .btnRegister {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
