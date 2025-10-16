@@ -73,6 +73,3 @@ Projet réalisé avec soin, logique et enthousiasme 💪
 Ce projet est libre d’utilisation à des fins d’apprentissage ou de démonstration.
 Toute suggestion d’amélioration est la bienvenue !
 
-```
-
-```
