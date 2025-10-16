@@ -80,3 +80,35 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(400).json({ message: "Email pas trouvé" });
+    }
+    res.json({
+      message: "Lien de réinitialisation envoyé à votre email (simulé)",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(400).json({ message: "Email pas trouvé" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.updatePassword(user.id, hashedPassword);
+    res.json({ message: "Mot de passe réinitialisé avec succès" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

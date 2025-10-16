@@ -45,13 +45,15 @@ function JobDetail() {
       setMotivation("");
       setTimeout(() => navigate("/jobs"), 3000);
     } catch (err) {
-      // Si applyToJob utilise fetch, l'erreur est un objet Error, pas axios
       if (err.status === 400 && err.message) {
         setMessage(err.message);
         setMessageType("error");
         setTimeout(() => {
           if (err.redirect) navigate(err.redirect);
         }, 3000);
+      } else if (err.status === 401 && err.message) {
+        setMessage(err.message);
+        setMessageType("error");
       } else {
         setMessage("Erreur lors de la candidature");
         setMessageType("error");

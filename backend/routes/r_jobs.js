@@ -15,12 +15,23 @@ router.post(
   jobController.postJob
 );
 
+router.post(
+  "/create",
+  authMiddleware,
+  authorize("admin"),
+  jobController.createJob
+);
 router.put(
   "/edit/:id",
   authMiddleware,
   authorize("recruteur", "admin"),
   jobController.editJob
 );
-router.delete("/delete/:id", authMiddleware, jobController.deleteJob);
+router.delete(
+  "/delete/:id",
+  authMiddleware,
+  authorize("recruteur", "admin"),
+  jobController.deleteJob
+);
 
 module.exports = router;

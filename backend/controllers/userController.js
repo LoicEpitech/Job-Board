@@ -35,7 +35,7 @@ exports.uploadCV = async (req, res) => {
   }
 };
 
-// 🔹 Récupérer le profil
+//  Récupérer le profil
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -48,7 +48,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// 🔹 Mettre à jour le profil
+//  Mettre à jour le profil
 exports.updateProfile = async (req, res) => {
   try {
     const data = { ...req.body };
@@ -65,7 +65,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 🔹 Changer le mot de passe
+//  Changer le mot de passe
 exports.changePassword = async (req, res) => {
   try {
     const { password } = req.body;
@@ -80,7 +80,7 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-// 🔹 Supprimer le compte
+//  Supprimer le compte
 exports.deleteAccount = async (req, res) => {
   try {
     await User.deleteAccount(req.user.id);
@@ -91,7 +91,7 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// 🔹 Mettre à jour le type de profil
+//  Mettre à jour le type de profil
 exports.updateUserType = async (req, res) => {
   try {
     const { type } = req.body;
@@ -126,6 +126,82 @@ exports.getUsers = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
-
 // Middleware pour gérer l'upload de CV
 exports.uploadMiddleware = upload.single("cv");
+
+//  Créer un utilisateur (admin)
+exports.createUser = async (req, res) => {
+  try {
+    const {
+      prenom,
+      nom,
+      email,
+      date_naissance,
+      pays,
+      ville,
+      code_postal,
+      tel,
+      mot_de_passe,
+      type,
+      profile_cv_id,
+      entreprise_id,
+    } = req.body;
+    const password = mot_de_passe;
+    if (!prenom || !nom || !email || !password || !type)
+      return res.status(400).json({ message: "Champs requis manquants" });
+    if (type !== "candidat" && type !== "recruteur" && type !== "admin")
+      return res.status(400).json({ message: "Type de profil invalide" });
+
+    const newUser = await User.createAdmin({
+      prenom,
+      nom,
+      email,
+      date_naissance,
+      pays,
+      ville,
+      code_postal,
+      tel,
+      password,
+      type,
+      profile_cv_id: profile_cv_id || null,
+      entreprise_id: entreprise_id || null,
+    });
+    res.status(201).json({ message: "Utilisateur créé", user: newUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+//  Mettre à jour un utilisateur (admin)
+exports.updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const data = { ...req.body };
+    if (
+      data.type &&
+      data.type !== "candidat" &&
+      data.type !== "recruteur" &&
+      data.type !== "admin"
+    )
+      return res.status(400).json({ message: "Type de profil invalide" });
+
+    const updatedUser = await User.update(userId, data);
+    res.json({ message: "Utilisateur mis à jour", user: updatedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+//  Supprimer un utilisateur (admin)
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await User.delete(userId);
+    res.json({ message: "Utilisateur supprimé" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

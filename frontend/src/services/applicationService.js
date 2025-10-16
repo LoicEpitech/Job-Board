@@ -40,11 +40,8 @@ export async function applyToJob(jobId, token, motivation) {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
-      // Gestion des cas spécifiques venant du backend
-      if (data.message) throw new Error(data.message);
-      throw new Error("Erreur lors de la candidature");
+      throw new Error(data.message || "Erreur lors de la candidature");
     }
 
     return data;
@@ -67,7 +64,6 @@ export async function deleteApplication(applicationId, token) {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       throw new Error(data.message || "Erreur lors de la suppression");
     }

@@ -22,12 +22,10 @@ const Profile = () => {
     ville: "",
     code_postal: "",
     tel: "",
-    adresse: "",
     profile_cv_id: null,
     type: "",
     entreprise_id: null,
     entreprise_nom: "",
-    entreprise_adresse: "",
     entreprise_description: "",
     entreprise_secteur: "",
     entreprise_site: "",
@@ -96,11 +94,9 @@ const Profile = () => {
             ville: data.ville || "",
             code_postal: data.code_postal || "",
             tel: data.tel || "",
-            adresse: data.adresse || "",
             profile_cv_id: data.profile_cv_id || null,
             type: data.type || "",
             entreprise_nom: data.entreprise_nom || "",
-            entreprise_adresse: data.entreprise_adresse || "",
             entreprise_description: data.entreprise_description || "",
             entreprise_secteur: data.entreprise_secteur || "",
             entreprise_site: data.entreprise_site || "",
@@ -189,6 +185,21 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    // Crée une copie du formData sans les champs entreprise si non modifiés
+    const dataToSend = { ...formData };
+
+    // Si companySearch est vide ou inchangé, retire les champs entreprise
+    if (!companySearch) {
+      delete dataToSend.entreprise_id;
+      delete dataToSend.entreprise_nom;
+      delete dataToSend.entreprise_description;
+      delete dataToSend.entreprise_secteur;
+      delete dataToSend.entreprise_site;
+      delete dataToSend.entreprise_pays;
+      delete dataToSend.entreprise_ville;
+      delete dataToSend.entreprise_code_postal;
+    }
+
     try {
       const response = await fetch("/api/users/update", {
         method: "PUT",
@@ -196,7 +207,7 @@ const Profile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
       const data = await response.json();
       if (response.ok) {
@@ -384,15 +395,6 @@ const Profile = () => {
             onChange={handleChange}
             disabled={!isEditing}
           />
-
-          <label>Adresse :</label>
-          <input
-            type="text"
-            name="adresse"
-            value={formData.adresse || ""}
-            onChange={handleChange}
-            disabled={!isEditing}
-          />
         </div>
 
         {formData.type === "candidat" && (
@@ -431,7 +433,6 @@ const Profile = () => {
           <div className={styles.section}>
             <h2>Informations sur l'entreprise</h2>
 
-            {/* Formulaire modification entreprise */}
             {!showCreateCompany ? (
               <div className={styles.infoGrid}>
                 <label>Rechercher une entreprise:</label>
@@ -443,7 +444,7 @@ const Profile = () => {
                     if (e.target.value.length > 2) {
                       const token = localStorage.getItem("token");
                       const res = await fetch(
-                        `/api/users/searchCompanies?query=${e.target.value}`,
+                        `/api/companies/searchCompanies?query=${e.target.value}`,
                         {
                           headers: {
                             Authorization: `Bearer ${token}`,

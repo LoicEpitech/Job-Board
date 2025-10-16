@@ -14,7 +14,6 @@ class Application {
     if (!cv_id) {
       throw new Error("NO_CV");
     }
-    // Par défaut, le statut est "en_attente"
     const statut = "en_attente";
     const result = await pool.query(
       `INSERT INTO applications (cv_id,user_id, job_id, lettre_motivation, statut, applied_at)

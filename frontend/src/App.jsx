@@ -19,6 +19,9 @@ import Profile from "./components/Profile";
 import MyApplications from "./pages/my-applications";
 import MyJobs from "./pages/my-jobs";
 import AdminDashboard from "./pages/admin-dashboard";
+import Forbidden from "./pages/403_error";
+import NotFound from "./pages/404_error";
+import Footer from "./pages/footer";
 
 // Composant pour protéger une route (connexion requise)
 function PrivateRoute({ children }) {
@@ -26,10 +29,15 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" />;
 }
 
+// Composant pour protéger une route 404 error
+function NotFoundRoute() {
+  return <NotFound />;
+}
+
 // Composant pour protéger selon le rôle
 function RoleRoute({ children, role }) {
   const { user } = useContext(UserContext);
-  return user && user.type === role ? children : <Navigate to="/" />;
+  return user && user.type === role ? children : <Navigate to="/forbidden" />;
 }
 
 function App() {
@@ -76,19 +84,16 @@ function App() {
               </PrivateRoute>
             }
           />
-          {/* <Route
-            path="/admin/dashboard"
-            element={
-              <RoleRoute role="admin">
-                <AdminDashboard />
-              </RoleRoute>
-            }
-          /> */}
 
           {/* Routes publiques */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forbidden" element={<Forbidden />} />
+          <Route path="/404_error" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
+
+        <Footer />
       </Router>
     </UserProvider>
   );

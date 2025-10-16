@@ -189,6 +189,68 @@
   margin-right: 0.3rem;
 }
 
+.closeJobBtn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  float: right;
+  margin-bottom: 1rem;
+}
+
+.confirmation {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+  border: 2px solid #ef4444;
+  animation: slideDown 0.3s ease-out;
+}
+
+.confirmation p {
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.confirmation button {
+  padding: 0.8rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 1rem;
+}
+
+.confirmation button:first-of-type {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.confirmation button:first-of-type:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+
+.confirmation button:last-of-type {
+  background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+}
+
+.confirmation button:last-of-type:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(113, 128, 150, 0.5);
+}
+
 /* Détails de la candidature (dépliable) */
 .applicationDetails {
   width: 100%;

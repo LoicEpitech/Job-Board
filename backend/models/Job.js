@@ -30,6 +30,75 @@ class Job {
     return result.rows[0];
   }
 
+  static async update(
+    id,
+    {
+      titre,
+      description,
+      type_contrat,
+      localisation,
+      salaire,
+      statut,
+      company_id,
+      user_id,
+    }
+  ) {
+    const fields = [];
+    const values = [];
+    let i = 1;
+
+    if (titre !== undefined) {
+      fields.push(`titre = $${i++}`);
+      values.push(titre);
+    }
+    if (description !== undefined) {
+      fields.push(`description = $${i++}`);
+      values.push(description);
+    }
+    if (type_contrat !== undefined) {
+      fields.push(`type_contrat = $${i++}`);
+      values.push(type_contrat);
+    }
+    if (localisation !== undefined) {
+      fields.push(`localisation = $${i++}`);
+      values.push(localisation);
+    }
+    if (salaire !== undefined) {
+      fields.push(`salaire = $${i++}`);
+      values.push(salaire);
+    }
+    if (statut !== undefined) {
+      fields.push(`statut = $${i++}`);
+      values.push(statut);
+    }
+    if (company_id !== undefined) {
+      fields.push(`company_id = $${i++}`);
+      values.push(company_id);
+    }
+    if (user_id !== undefined) {
+      fields.push(`user_id = $${i++}`);
+      values.push(user_id);
+    }
+
+    if (fields.length === 0) {
+      // Rien à mettre à jour
+      return null;
+    }
+
+    values.push(id); // pour WHERE id = $n
+    const query = `UPDATE jobs SET ${fields.join(
+      ", "
+    )} WHERE id = $${i} RETURNING *`;
+
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0]; // renvoie l'offre mise à jour
+    } catch (err) {
+      console.error("Erreur update Job :", err);
+      throw err;
+    }
+  }
+
   // Récupérer toutes les offres
   static async getAll() {
     const result = await pool.query(
@@ -46,20 +115,6 @@ class Job {
     const result = await pool.query(
       "SELECT j.*, c.nom AS company_name FROM jobs j LEFT JOIN companies c ON j.company_id = c.id WHERE j.id = $1",
       [id]
-    );
-    return result.rows[0];
-  }
-
-  // Modifier une offre
-  static async update(id, fields) {
-    const { titre, description, type_contrat, localisation, salaire, statut } =
-      fields;
-    const result = await pool.query(
-      `UPDATE jobs
-       SET titre = $1, description = $2, type_contrat = $3, localisation = $4, salaire = $5, statut = $6
-       WHERE id = $7
-       RETURNING *`,
-      [titre, description, type_contrat, localisation, salaire, statut, id]
     );
     return result.rows[0];
   }

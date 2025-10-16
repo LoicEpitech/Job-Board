@@ -1,110 +1,210 @@
 import React, { useState, useEffect } from "react";
+import { useAdminService } from "../services/admin";
+import "./modules/Admin.css";
 
 function Admin() {
+  const { getData, saveData, deleteData } = useAdminService();
   const [selectedTable, setSelectedTable] = useState("users");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [editRow, setEditRow] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   const tables = [
-    { key: "users", label: "Utilisateurs" },
-    { key: "companies", label: "Entreprises" },
-    { key: "jobs", label: "Offres d'emploi" },
+    { key: "users", label: "Utilisateurs", searchField: "nom" },
+    { key: "companies", label: "Entreprises", searchField: "nom" },
+    { key: "jobs", label: "Offres d'emploi", searchField: "titre" },
   ];
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       setLoading(true);
-      let url = `/api/${selectedTable}`;
-      const token = localStorage.getItem("token");
-      try {
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const result = await res.json();
-        setData(Array.isArray(result) ? result : result[selectedTable] || []);
-      } catch (err) {
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
+      const result = await getData(selectedTable);
+      setData(result);
+      setLoading(false);
     };
-    fetchData();
+    loadData();
   }, [selectedTable]);
 
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+    const result = await saveData(selectedTable, editRow);
+
+    if (result && result.message) {
+      setMessage(result.message);
+      setMessageType("success");
+      const updatedRow =
+        result[selectedTable.slice(0, -1)] ||
+        result[selectedTable] ||
+        result.user ||
+        result.company ||
+        result.job ||
+        {};
+      if (updatedRow.id) {
+        setData((prev) =>
+          editRow.id
+            ? prev.map((row) =>
+                row.id === updatedRow.id ? { ...row, ...updatedRow } : row
+              )
+            : [...prev, updatedRow]
+        );
+      }
+      setEditRow(null);
+    } else {
+      setMessage(result?.message || "Erreur");
+      setMessageType("error");
+    }
+
+    setLoading(false);
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  const handleDelete = async (row) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer ?")) return;
+    setLoading(true);
+    const result = await deleteData(selectedTable, row.id || row._id);
+    if (result && result.message) {
+      setData((prev) =>
+        prev.filter((r) => (r.id || r._id) !== (row.id || row._id))
+      );
+      setMessage(result.message);
+      setMessageType("success");
+    } else {
+      setMessage("Erreur suppression");
+      setMessageType("error");
+    }
+    setLoading(false);
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  const searchField = tables.find((t) => t.key === selectedTable)?.searchField;
+  const filteredData = data.filter((row) =>
+    search
+      ? String(row[searchField] || "")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      : true
+  );
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Admin - Gestion des données</h1>
-      <div style={{ marginBottom: "2rem" }}>
+    <div className="admin-container">
+      <h1 className="admin-title">Admin - Gestion des données</h1>
+
+      {/* Choix de table */}
+      <div className="admin-table-select">
         {tables.map((table) => (
           <button
             key={table.key}
-            onClick={() => setSelectedTable(table.key)}
-            style={{
-              marginRight: "1rem",
-              padding: "0.5rem 1rem",
-              background: selectedTable === table.key ? "#2563eb" : "#e5e7eb",
-              color: selectedTable === table.key ? "#fff" : "#222",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontWeight: "bold",
+            onClick={() => {
+              setSelectedTable(table.key);
+              setSearch("");
             }}
+            className={`admin-table-btn${
+              selectedTable === table.key ? " selected" : ""
+            }`}
           >
             {table.label}
           </button>
         ))}
       </div>
-      <h2>{tables.find((t) => t.key === selectedTable)?.label}</h2>
+
+      {message && (
+        <div
+          className={`admin-message ${messageType}`}
+          style={{
+            backgroundColor: messageType === "success" ? "#f0fdf4" : "#fef2f2",
+            color: messageType === "success" ? "#15803d" : "#b91c1c",
+            border: `2px solid ${
+              messageType === "success" ? "#86efac" : "#fca5a5"
+            }`,
+            padding: "0.5rem",
+            marginBottom: "1rem",
+            borderRadius: "0.5rem",
+          }}
+        >
+          {message}
+        </div>
+      )}
+
+      <input
+        type="text"
+        className="admin-search-input"
+        placeholder={
+          selectedTable === "jobs"
+            ? "Rechercher par titre..."
+            : "Rechercher par nom..."
+        }
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       {loading ? (
-        <p>Chargement...</p>
+        <p className="admin-loading">Chargement...</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              {data[0] &&
-                Object.keys(data[0]).map((col) => (
-                  <th
-                    key={col}
-                    style={{
-                      borderBottom: "2px solid #e5e7eb",
-                      padding: "0.5rem",
-                      textAlign: "left",
-                      background: "#f3f4f6",
-                    }}
-                  >
-                    {col}
-                  </th>
-                ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row) => (
-              <tr key={row.id || row._id}>
-                {Object.keys(row).map((col) => (
-                  <td
-                    key={col}
-                    style={{
-                      borderBottom: "1px solid #e5e7eb",
-                      padding: "0.5rem",
-                    }}
-                  >
-                    {String(row[col])}
-                  </td>
-                ))}
-              </tr>
-            ))}
-            {data.length === 0 && (
+        <>
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td
-                  colSpan={10}
-                  style={{ textAlign: "center", padding: "2rem" }}
-                >
-                  Aucune donnée à afficher.
-                </td>
+                <th>Actions</th>
+                {filteredData[0] &&
+                  Object.keys(filteredData[0]).map((col) => (
+                    <th key={col}>{col}</th>
+                  ))}
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredData.map((row) => (
+                <tr key={row.id || row._id}>
+                  <td>
+                    <button onClick={() => setEditRow(row)}>Modifier</button>
+                    <button onClick={() => handleDelete(row)}>Supprimer</button>
+                  </td>
+                  {Object.keys(row).map((col) => (
+                    <td key={col}>{String(row[col])}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button onClick={() => setEditRow({})}>Créer</button>
+
+          {editRow && (
+            <form onSubmit={handleSave}>
+              {Object.keys(filteredData[0] || {})
+                .filter(
+                  (col) =>
+                    ![
+                      "id",
+                      "_id",
+                      "created_at",
+                      "updated_at",
+                      "posted_at",
+                    ].includes(col)
+                )
+                .map((col) => (
+                  <div key={col}>
+                    <label>{col}</label>
+                    <input
+                      type="text"
+                      value={editRow[col] || ""}
+                      onChange={(e) =>
+                        setEditRow({ ...editRow, [col]: e.target.value })
+                      }
+                    />
+                  </div>
+                ))}
+              <button type="submit">Enregistrer</button>
+              <button type="button" onClick={() => setEditRow(null)}>
+                Annuler
+              </button>
+            </form>
+          )}
+        </>
       )}
     </div>
   );

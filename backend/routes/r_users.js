@@ -15,12 +15,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Routes utilisateur
+router.get("/", authMiddleware, userController.getUsers);
 router.get("/me", authMiddleware, userController.getProfile);
-router.get("/users", authMiddleware, userController.getUsers);
 router.put("/update", authMiddleware, userController.updateProfile);
 router.put("/password", authMiddleware, userController.changePassword);
-router.get("/searchCompanies", authMiddleware, userController.searchCompanies);
-// router.delete("/delete", authMiddleware, userController.deleteAccount);
 router.post(
   "/upload-cv",
   authMiddleware,
@@ -28,12 +26,31 @@ router.post(
   authorize("candidat"),
   userController.uploadCV
 );
-
 router.put(
   "/update-type",
   authMiddleware,
   authorize("admin"),
   userController.updateUserType
+);
+
+// Routes admin
+router.post(
+  "/create",
+  authMiddleware,
+  authorize("admin"),
+  userController.createUser
+);
+router.put(
+  "/edit/:id",
+  authMiddleware,
+  authorize("admin"),
+  userController.updateUser
+);
+router.delete(
+  "/delete/:id",
+  authMiddleware,
+  authorize("admin"),
+  userController.deleteUser
 );
 
 module.exports = router;

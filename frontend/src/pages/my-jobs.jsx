@@ -3,6 +3,7 @@ import {
   getMyJobs,
   getApplicationsForJob,
   updateApplicationStatus,
+  closeJob,
 } from "../services/jobService";
 import styles from "./modules/my-jobs.module.css";
 
@@ -13,6 +14,7 @@ function MyJobs() {
   const [applications, setApplications] = useState([]);
   const [loadingApps, setLoadingApps] = useState(false);
   const [expandedAppId, setExpandedAppId] = useState(null);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -35,9 +37,7 @@ function MyJobs() {
     try {
       const token = localStorage.getItem("token");
       const data = await getApplicationsForJob(jobId, token);
-      console.log("Réponse brute du backend :", data);
 
-      // 🔧 Ici, on force applications à être un tableau quoi qu’il arrive :
       const appsArray = Array.isArray(data)
         ? data
         : Array.isArray(data.applications)
@@ -76,6 +76,18 @@ function MyJobs() {
       </div>
     );
 
+  const handleCloseJob = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await closeJob(jobId, token);
+      setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
+      setSelectedJobId(null);
+    } catch (error) {
+      console.error(error);
+      alert("Erreur lors de la fermeture de l'offre");
+    }
+  };
+
   return (
     <div className={styles.jobsContainer}>
       <div className={styles.jobsWrapper}>
@@ -104,6 +116,29 @@ function MyJobs() {
 
         {selectedJobId && (
           <div className={styles.applicationsForJob}>
+            <button
+              className={styles.closeJobBtn}
+              onClick={() => setShowConfirmClose(true)}
+            >
+              Fermer l'offre
+            </button>
+            {showConfirmClose && (
+              <div className={styles.confirmation}>
+                <p>Êtes-vous sûr de vouloir fermer cette offre ?</p>
+                <button
+                  onClick={async () => {
+                    await handleCloseJob(selectedJobId);
+                    setShowConfirmClose(false);
+                  }}
+                >
+                  Confirmer
+                </button>
+                <button onClick={() => setShowConfirmClose(false)}>
+                  Annuler
+                </button>
+              </div>
+            )}
+
             <h3>Candidatures pour cette offre</h3>
             {loadingApps ? (
               <p className={styles.loading}>Chargement des candidatures...</p>

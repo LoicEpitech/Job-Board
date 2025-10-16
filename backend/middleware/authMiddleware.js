@@ -14,6 +14,12 @@ async function authenticate(req, res, next) {
       return res.status(401).json({ message: "Utilisateur introuvable" });
 
     req.user = user;
+
+    // mettre le temps du token à 7 jours
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 7);
+    req.user.tokenExpiration = expirationDate;
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "Token invalide ou expiré" });

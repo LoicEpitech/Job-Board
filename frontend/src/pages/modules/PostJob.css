@@ -127,6 +127,42 @@
   box-shadow: 0 4px 12px rgba(197, 48, 48, 0.15);
 }
 
+/* Autocomplete des villes */
+.citySuggestions {
+  grid-column: 2;
+  list-style: none;
+  padding: 0;
+  margin: -0.8rem 0 0 0;
+  background: #ffffff;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.citySuggestions li {
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.citySuggestions li:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
+  color: #667eea;
+}
+
+.citySuggestions li:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

@@ -13,6 +13,7 @@ app.use("/api/auth", require("./routes/r_auth"));
 app.use("/api/users", require("./routes/r_users"));
 app.use("/api/jobs", require("./routes/r_jobs"));
 app.use("/api/applications", require("./routes/r_applications"));
+app.use("/api/companies", require("./routes/r_companies"));
 
 app.listen(PORT, () => {
   console.log(`🚀 Backend lancé sur http://localhost:${PORT}`);

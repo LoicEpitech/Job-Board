@@ -1,7 +1,8 @@
 // controllers/applicationController.js
-const Application = require("../models/Application");
+import Application from "../models/Application.js";
 
-exports.applyToJob = async (req, res) => {
+// POST /api/applications/:id/apply
+export const applyToJob = async (req, res) => {
   const user_id = req.user.id;
   const job_id = req.params.id;
   const lettre_motivation = req.body.motivation;
@@ -21,7 +22,7 @@ exports.applyToJob = async (req, res) => {
       });
     }
     if (err.message === "ALREADY_APPLIED") {
-      return res.status(400).json({
+      return res.status(401).json({
         message: "Vous avez déjà postulé à cette offre.",
       });
     }
@@ -31,31 +32,34 @@ exports.applyToJob = async (req, res) => {
   }
 };
 
-exports.getMyApplications = async (req, res) => {
+// GET /api/applications/mine
+export const getMyApplications = async (req, res) => {
   try {
     const applications = await Application.getMyApplications(req.user.id);
     res.json({ applications });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Erreur lors de la récupération des candidatures" });
+    res.status(500).json({
+      message: "Erreur lors de la récupération des candidatures",
+    });
   }
 };
 
-exports.getApplicationsForJob = async (req, res) => {
+// GET /api/applications/job/:id
+export const getApplicationsForJob = async (req, res) => {
   try {
     const applications = await Application.getApplicationsForJob(req.params.id);
     res.json({ applications });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Erreur lors de la récupération des candidatures" });
+    res.status(500).json({
+      message: "Erreur lors de la récupération des candidatures",
+    });
   }
 };
 
-exports.updateApplicationStatus = async (req, res) => {
+// PATCH /api/applications/:id/status
+export const updateApplicationStatus = async (req, res) => {
   const appId = req.params.id;
   const { statut } = req.body;
   try {
@@ -66,20 +70,8 @@ exports.updateApplicationStatus = async (req, res) => {
     res.json({ message: "Statut de la candidature mis à jour" });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Erreur lors de la mise à jour du statut" });
+    res.status(500).json({
+      message: "Erreur lors de la mise à jour du statut",
+    });
   }
 };
-
-// exports.deleteApplication = async (req, res) => {
-//   try {
-//     const deleted = await Application.delete(req.params.id, req.user.id);
-//     if (!deleted)
-//       return res.status(404).json({ message: "Candidature non trouvée" });
-//     res.json({ message: "Candidature supprimée" });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Erreur lors de la suppression" });
-//   }
-// };
