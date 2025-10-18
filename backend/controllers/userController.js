@@ -4,9 +4,7 @@ const path = require("path");
 
 // Configuration multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/cv/");
-  },
+  destination: (req, file, cb) => cb(null, "uploads/cv/"),
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${Math.round(
       Math.random() * 1e9
@@ -16,16 +14,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Middleware upload CV
+exports.uploadMiddleware = upload.single("cv");
+
+//  Upload d’un CV
 exports.uploadCV = async (req, res) => {
   try {
-    if (!req.file) {
+    if (!req.file)
       return res.status(400).json({ message: "Aucun fichier reçu" });
-    }
 
     const fichier = `/uploads/cv/${req.file.filename}`;
     const titre = req.body.titre || req.file.originalname;
 
-    // Ajoute le CV en BDD et met à jour profile_cv_id
     const updatedUser = await User.addCV(req.user.id, fichier, titre);
 
     res.json({ message: "CV ajouté avec succès", user: updatedUser });
@@ -35,7 +35,7 @@ exports.uploadCV = async (req, res) => {
   }
 };
 
-//  Récupérer le profil
+//  Récupérer le profil utilisateur
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -52,12 +52,8 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const data = { ...req.body };
-    // Met à jour le profil utilisateur
     const updatedUser = await User.updateProfile(req.user.id, data);
-
-    // Met à jour le profil entreprise si besoin
     await User.updateCompanyProfile(req, updatedUser);
-
     res.json({ message: "Profil mis à jour", user: updatedUser });
   } catch (err) {
     console.error(err);
@@ -91,32 +87,22 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-//  Mettre à jour le type de profil
+//  Changer le type de profil
 exports.updateUserType = async (req, res) => {
   try {
     const { type } = req.body;
-    if (!type || (type !== "candidat" && type !== "recruteur"))
+    if (!["candidat", "recruteur"].includes(type))
       return res.status(400).json({ message: "Type de profil invalide" });
 
     const updatedUser = await User.updateUserType(req.user.id, type);
-    res.json({ message: "Type de profil mis à jour", user: updatedUser });
+    res.json({ message: "Type mis à jour", user: updatedUser });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
 
-exports.searchCompanies = async (req, res) => {
-  try {
-    const query = req.query.query;
-    const companies = await User.searchCompanies(query);
-    res.json({ companies });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-};
-
+//  Récupérer tous les utilisateurs (admin)
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -126,8 +112,6 @@ exports.getUsers = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
-// Middleware pour gérer l'upload de CV
-exports.uploadMiddleware = upload.single("cv");
 
 //  Créer un utilisateur (admin)
 exports.createUser = async (req, res) => {
@@ -146,26 +130,24 @@ exports.createUser = async (req, res) => {
       profile_cv_id,
       entreprise_id,
     } = req.body;
-    const password = mot_de_passe;
-    if (!prenom || !nom || !email || !password || !type)
+    if (!prenom || !nom || !email || !mot_de_passe || !type)
       return res.status(400).json({ message: "Champs requis manquants" });
-    if (type !== "candidat" && type !== "recruteur" && type !== "admin")
-      return res.status(400).json({ message: "Type de profil invalide" });
 
     const newUser = await User.createAdmin({
       prenom,
       nom,
       email,
+      password: mot_de_passe,
       date_naissance,
       pays,
       ville,
       code_postal,
       tel,
-      password,
       type,
-      profile_cv_id: profile_cv_id || null,
-      entreprise_id: entreprise_id || null,
+      profile_cv_id,
+      entreprise_id,
     });
+
     res.status(201).json({ message: "Utilisateur créé", user: newUser });
   } catch (err) {
     console.error(err);
@@ -178,14 +160,6 @@ exports.updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     const data = { ...req.body };
-    if (
-      data.type &&
-      data.type !== "candidat" &&
-      data.type !== "recruteur" &&
-      data.type !== "admin"
-    )
-      return res.status(400).json({ message: "Type de profil invalide" });
-
     const updatedUser = await User.update(userId, data);
     res.json({ message: "Utilisateur mis à jour", user: updatedUser });
   } catch (err) {

@@ -21,9 +21,12 @@ function MyJobs() {
       try {
         const token = localStorage.getItem("token");
         const data = await getMyJobs(token);
-        setJobs(data);
+
+        // Vérifie si data.jobs existe et est bien un tableau
+        setJobs(Array.isArray(data.jobs) ? data.jobs : []);
       } catch (error) {
         console.error(error);
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -38,9 +41,10 @@ function MyJobs() {
       const token = localStorage.getItem("token");
       const data = await getApplicationsForJob(jobId, token);
 
+      // Assure-toi qu'on a bien un tableau de candidatures
       const appsArray = Array.isArray(data)
         ? data
-        : Array.isArray(data.applications)
+        : data && Array.isArray(data.applications)
         ? data.applications
         : [];
 
@@ -67,15 +71,6 @@ function MyJobs() {
     }
   };
 
-  if (loading)
-    return (
-      <div className={styles.jobsContainer}>
-        <div className={styles.jobsWrapper}>
-          <p className={styles.loading}>Chargement...</p>
-        </div>
-      </div>
-    );
-
   const handleCloseJob = async (jobId) => {
     try {
       const token = localStorage.getItem("token");
@@ -87,6 +82,15 @@ function MyJobs() {
       alert("Erreur lors de la fermeture de l'offre");
     }
   };
+
+  if (loading)
+    return (
+      <div className={styles.jobsContainer}>
+        <div className={styles.jobsWrapper}>
+          <p className={styles.loading}>Chargement...</p>
+        </div>
+      </div>
+    );
 
   return (
     <div className={styles.jobsContainer}>

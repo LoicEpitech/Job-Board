@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { postJob } from "../services/jobService";
+import { createJob } from "../services/jobService";
 import "./modules/PostJob.css";
 
 function PostJob() {
@@ -41,7 +41,7 @@ function PostJob() {
     setMessage("");
     const token = localStorage.getItem("token");
     try {
-      await postJob(form, token);
+      await createJob(form, token);
       setMessage("Offre créée avec succès !");
       setMessageType("success");
       setForm({

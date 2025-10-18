@@ -9,16 +9,9 @@ router.get("/", jobController.getAllJobs);
 router.get("/my-jobs", authMiddleware, jobController.getMyJobs);
 router.get("/:id", jobController.getJobById);
 router.post(
-  "/postJob",
-  authMiddleware,
-  authorize("recruteur", "admin"),
-  jobController.postJob
-);
-
-router.post(
   "/create",
   authMiddleware,
-  authorize("admin"),
+  authorize("admin", "recruteur"),
   jobController.createJob
 );
 router.put(

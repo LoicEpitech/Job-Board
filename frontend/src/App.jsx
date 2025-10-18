@@ -21,7 +21,7 @@ import MyJobs from "./pages/my-jobs";
 import AdminDashboard from "./pages/admin-dashboard";
 import Forbidden from "./pages/403_error";
 import NotFound from "./pages/404_error";
-import Footer from "./pages/footer";
+import Footer from "./components/Footer";
 
 // Composant pour protéger une route (connexion requise)
 function PrivateRoute({ children }) {

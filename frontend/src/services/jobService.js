@@ -26,14 +26,14 @@ export const getJobById = async (id) => {
 };
 
 //  Publier une nouvelle offre
-export const postJob = async (jobData, token) => {
+export const createJob = async (jobData, token) => {
   try {
-    const response = await axios.post(`${API_URL}/postJob`, jobData, {
+    const response = await axios.post(`${API_URL}/create`, jobData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   } catch (error) {
-    console.error("Erreur dans postJob :", error);
+    console.error("Erreur dans createJob :", error);
     throw error;
   }
 };

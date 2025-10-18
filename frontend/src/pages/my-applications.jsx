@@ -41,7 +41,7 @@ function MyApplications() {
           <ul className="applicationsList">
             {applications.map((app) => (
               <li className="applicationItem" key={app.id}>
-                <strong>{app.job_title}</strong>
+                <strong>{app.jobs?.titre}</strong>
                 <span
                   className={`statusBadge ${
                     app.statut === "acceptée"

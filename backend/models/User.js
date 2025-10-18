@@ -1,124 +1,154 @@
-const pool = require("../config/db");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 
 class User {
+  // pour convertir une chaîne en Date compatible Prisma
+  static parseDate(value) {
+    if (!value) return null;
+    const s = String(value).trim();
+    // format YYYY-MM-DD -> construire une Date en locale (évite décalage UTC)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const [y, m, d] = s.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+    // autre format : essayer de parser
+    const dt = new Date(s);
+    return isNaN(dt) ? null : dt;
+  }
+
   //  Créer un utilisateur
   static async create({ prenom, nom, email, password, type }) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      `INSERT INTO users (prenom, nom, email, mot_de_passe, type)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [prenom, nom, email, hashedPassword, type]
-    );
-    return result.rows[0];
+    const user = await prisma.users.create({
+      data: {
+        prenom,
+        nom,
+        email,
+        mot_de_passe: hashedPassword,
+        type,
+      },
+    });
+    return user;
   }
 
   //  Chercher un utilisateur par email
   static async findByEmail(email) {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
-    return result.rows[0] || null;
+    return await prisma.users.findUnique({
+      where: { email },
+    });
   }
 
-  //  Chercher un utilisateur par id
-  static async findById(userId) {
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [
-      userId,
-    ]);
-    return result.rows[0] || null;
+  //  Chercher un utilisateur par ID
+  static async findById(id) {
+    return await prisma.users.findUnique({
+      where: { id },
+    });
   }
 
-  //  Vérifier le mot de passe pour login
+  //  Vérifier le mot de passe
   static async verifyPassword(user, password) {
     return await bcrypt.compare(password, user.mot_de_passe);
   }
 
+  //  Ajouter un CV et l’associer à l’utilisateur
   static async addCV(userId, fichier, titre) {
-    const cvResult = await pool.query(
-      `INSERT INTO cvs (fichier, titre, user_id)
-     VALUES ($1, $2, $3)
-     RETURNING id`,
-      [fichier, titre, userId]
-    );
+    const cv = await prisma.cvs.create({
+      data: {
+        fichier,
+        titre,
+        user_id: userId,
+      },
+    });
 
-    const cvId = cvResult.rows[0].id;
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: { profile_cv_id: cv.id },
+      select: {
+        id: true,
+        prenom: true,
+        nom: true,
+        email: true,
+        profile_cv_id: true,
+      },
+    });
 
-    const userResult = await pool.query(
-      `UPDATE users
-     SET profile_cv_id = $1
-     WHERE id = $2
-     RETURNING id, prenom, nom, email, profile_cv_id`,
-      [cvId, userId]
-    );
-
-    return userResult.rows[0];
+    return updatedUser;
   }
 
-  //  Mettre à jour le profil (sans CV)
+  //  Mettre à jour le profil utilisateur
   static async updateProfile(userId, data) {
-    const { prenom, nom, pays, ville, code_postal, tel, type } = data;
+    const { prenom, nom, date_naissance, pays, ville, code_postal, tel, type } =
+      data;
 
-    const date_naissance =
-      data.date_naissance === "" ? null : data.date_naissance;
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        prenom,
+        nom,
+        date_naissance: User.parseDate(date_naissance) || null,
+        pays,
+        ville,
+        code_postal,
+        tel,
+        type,
+      },
+      select: {
+        id: true,
+        prenom: true,
+        nom: true,
+        email: true,
+        date_naissance: true,
+        pays: true,
+        ville: true,
+        code_postal: true,
+        tel: true,
+        type: true,
+        profile_cv_id: true,
+      },
+    });
 
-    const result = await pool.query(
-      `UPDATE users
-       SET prenom = $1,
-           nom = $2,
-           date_naissance = $3,
-           pays = $4,
-           ville = $5,
-           code_postal = $6,
-           tel = $7,
-           type = $8
-       WHERE id = $9
-       RETURNING id, prenom, nom, email, date_naissance, pays, ville, code_postal, tel, type, profile_cv_id`,
-      [prenom, nom, date_naissance, pays, ville, code_postal, tel, type, userId]
-    );
-
-    return result.rows[0];
+    return updatedUser;
   }
 
   //  Changer le mot de passe
   static async changePassword(userId, newPassword) {
     const hashed = await bcrypt.hash(newPassword, 10);
-    await pool.query("UPDATE users SET mot_de_passe = $1 WHERE id = $2", [
-      hashed,
-      userId,
-    ]);
+    await prisma.users.update({
+      where: { id: userId },
+      data: { mot_de_passe: hashed },
+    });
     return true;
   }
 
-  //  Supprimer un utilisateur
+  //  Supprimer un compte
   static async deleteAccount(userId) {
-    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    await prisma.users.delete({ where: { id: userId } });
     return true;
   }
 
-  //  Mettre à jour le type de profil
+  //  Modifier le type d'utilisateur
   static async updateUserType(userId, type) {
-    const result = await pool.query(
-      "UPDATE users SET type = $1 WHERE id = $2 RETURNING id, prenom, nom, email, type",
-      [type, userId]
-    );
-    return result.rows[0];
+    return await prisma.users.update({
+      where: { id: userId },
+      data: { type },
+      select: { id: true, prenom: true, nom: true, email: true, type: true },
+    });
   }
 
+  //  Récupérer toutes les entreprises
   static async getAllCompanies() {
-    const result = await pool.query(
-      `SELECT * FROM companies c
-      ORDER BY c.nom`
-    );
-    return result.rows;
+    return await prisma.companies.findMany({
+      orderBy: { nom: "asc" },
+    });
   }
 
+  //  Récupérer tous les utilisateurs (admin)
   static async find() {
-    const result = await pool.query("SELECT * FROM users");
-    return result.rows;
+    return await prisma.users.findMany();
   }
 
+  //  Mettre à jour le profil d'entreprise
   static async updateCompanyProfile(req, user) {
     if (user.type === "recruteur") {
       const {
@@ -132,126 +162,75 @@ class User {
         entreprise_code_postal,
       } = req.body;
 
-      // Vérifie si la société existe déjà
-      const company = await pool.query(
-        "SELECT * FROM companies WHERE user_id = $1",
-        [user.id]
-      );
+      const existingCompany = await prisma.companies.findFirst({
+        where: { user_id: user.id },
+      });
 
-      if (company.rows.length > 0) {
-        await pool.query(
-          `UPDATE companies SET
-          nom = $1,
-          description = $2,
-          secteur_activite = $3,
-          site_web = $4,
-          pays = $5,
-          mail = $6,
-          ville = $7,
-          code_postal = $8
-        WHERE user_id = $9`,
-          [
-            entreprise_nom,
-            entreprise_description,
-            entreprise_secteur,
-            entreprise_site,
-            entreprise_pays,
-            entreprise_mail,
-            entreprise_ville,
-            entreprise_code_postal,
-            user.id,
-          ]
-        );
+      if (existingCompany) {
+        await prisma.companies.update({
+          where: { id: existingCompany.id },
+          data: {
+            nom: entreprise_nom,
+            description: entreprise_description,
+            secteur_activite: entreprise_secteur,
+            site_web: entreprise_site,
+            pays: entreprise_pays,
+            mail: entreprise_mail,
+            ville: entreprise_ville,
+            code_postal: entreprise_code_postal,
+          },
+        });
       } else {
-        // Crée
-        await pool.query(
-          `INSERT INTO companies
-          (nom, description, secteur_activite, site_web, pays, mail, ville, code_postal, user_id)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-          [
-            entreprise_nom,
-            entreprise_description,
-            entreprise_secteur,
-            entreprise_site,
-            entreprise_pays,
-            entreprise_mail,
-            entreprise_ville,
-            entreprise_code_postal,
-            user.id,
-          ]
-        );
+        await prisma.companies.create({
+          data: {
+            nom: entreprise_nom,
+            description: entreprise_description,
+            secteur_activite: entreprise_secteur,
+            site_web: entreprise_site,
+            pays: entreprise_pays,
+            mail: entreprise_mail,
+            ville: entreprise_ville,
+            code_postal: entreprise_code_postal,
+            user_id: user.id,
+          },
+        });
       }
     }
   }
 
-  // modifier un utilisateur (admin)
+  //  Créer un utilisateur (admin)
+  static async createAdmin(data) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    return await prisma.users.create({
+      data: {
+        prenom: data.prenom,
+        nom: data.nom,
+        email: data.email,
+        mot_de_passe: hashedPassword,
+        date_naissance: User.parseDate(data.date_naissance) || null,
+        pays: data.pays || null,
+        ville: data.ville || null,
+        code_postal: data.code_postal || null,
+        tel: data.tel || null,
+        type: data.type,
+        profile_cv_id: data.profile_cv_id || null,
+        entreprise_id: data.entreprise_id || null,
+      },
+    });
+  }
+
+  //  Modifier un utilisateur (admin)
   static async update(userId, data) {
-    const fields = [];
-    const values = [];
-    let index = 1;
-
-    for (const [key, value] of Object.entries(data)) {
-      fields.push(`${key} = $${index}`);
-      values.push(value);
-      index++;
-    }
-
-    const query = `
-    UPDATE users
-    SET ${fields.join(", ")}
-    WHERE id = $${index}
-    RETURNING prenom, nom, email, date_naissance, pays, ville, code_postal, tel, mot_de_passe, type, profile_cv_id, entreprise_id
-  `;
-    values.push(userId);
-
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return await prisma.users.update({
+      where: { id: parseInt(userId) },
+      data,
+    });
   }
 
-  // supprimer un utilisateur (admin)
+  //  Supprimer un utilisateur (admin)
   static async delete(userId) {
-    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    await prisma.users.delete({ where: { id: parseInt(userId) } });
     return true;
-  }
-
-  // créer un utilisateur (admin)
-  static async createAdmin({
-    prenom,
-    nom,
-    email,
-    date_naissance,
-    pays,
-    ville,
-    code_postal,
-    tel,
-    password,
-    type,
-    profile_cv_id = null,
-    entreprise_id = null,
-  }) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      `INSERT INTO users (
-      prenom, nom, email, mot_de_passe, date_naissance, pays, ville, code_postal, tel, type, profile_cv_id, entreprise_id
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-    RETURNING id, prenom, nom, email, date_naissance, pays, ville, code_postal, tel, type, profile_cv_id, entreprise_id`,
-      [
-        prenom,
-        nom,
-        email,
-        hashedPassword,
-        date_naissance || null,
-        pays || null,
-        ville || null,
-        code_postal || null,
-        tel || null,
-        type,
-        profile_cv_id,
-        entreprise_id,
-      ]
-    );
-    return result.rows[0];
   }
 }
 

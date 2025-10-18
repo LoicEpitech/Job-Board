@@ -1,7 +1,6 @@
 // controllers/applicationController.js
 import Application from "../models/Application.js";
 
-// POST /api/applications/:id/apply
 export const applyToJob = async (req, res) => {
   const user_id = req.user.id;
   const job_id = req.params.id;
@@ -32,7 +31,6 @@ export const applyToJob = async (req, res) => {
   }
 };
 
-// GET /api/applications/mine
 export const getMyApplications = async (req, res) => {
   try {
     const applications = await Application.getMyApplications(req.user.id);
@@ -45,7 +43,6 @@ export const getMyApplications = async (req, res) => {
   }
 };
 
-// GET /api/applications/job/:id
 export const getApplicationsForJob = async (req, res) => {
   try {
     const applications = await Application.getApplicationsForJob(req.params.id);
@@ -58,7 +55,6 @@ export const getApplicationsForJob = async (req, res) => {
   }
 };
 
-// PATCH /api/applications/:id/status
 export const updateApplicationStatus = async (req, res) => {
   const appId = req.params.id;
   const { statut } = req.body;

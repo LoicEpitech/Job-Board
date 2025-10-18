@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model applications {
+  id                Int      @id @default(autoincrement())
+  cv_id             Int?
+  user_id           Int?
+  job_id            Int?
+  lettre_motivation String?
+  statut            String   @default("en_attente") @db.VarChar(20)
+  applied_at        DateTime @default(now()) @db.Timestamp(6)
+  cvs               cvs?     @relation(fields: [cv_id], references: [id], onUpdate: NoAction)
+  jobs              jobs?    @relation(fields: [job_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users             users?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, job_id])
+}
+
+model companies {
+  id                                   Int      @id @default(autoincrement())
+  nom                                  String?  @db.VarChar(100)
+  description                          String?
+  secteur_activite                     String?  @db.VarChar(255)
+  site_web                             String?  @db.VarChar(255)
+  pays                                 String?  @db.VarChar(255)
+  ville                                String?  @db.VarChar(255)
+  code_postal                          String?  @db.VarChar(10)
+  created_at                           DateTime @default(now()) @db.Timestamp(6)
+  user_id                              Int?
+  mail                                 String?  @db.VarChar(50)
+  users_companies_user_idTousers       users?   @relation("companies_user_idTousers", fields: [user_id], references: [id], onUpdate: NoAction)
+  jobs                                 jobs[]
+  users_users_entreprise_idTocompanies users[]  @relation("users_entreprise_idTocompanies")
+}
+
+model cvs {
+  id                             Int            @id @default(autoincrement())
+  fichier                        String         @db.VarChar(255)
+  titre                          String?        @db.VarChar(100)
+  uploaded_at                    DateTime       @default(now()) @db.Timestamp(6)
+  user_id                        Int?
+  applications                   applications[]
+  users_cvs_user_idTousers       users?         @relation("cvs_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_users_profile_cv_idTocvs users[]        @relation("users_profile_cv_idTocvs")
+}
+
+model jobs {
+  id           Int            @id @default(autoincrement())
+  titre        String?        @db.VarChar(100)
+  description  String?        @db.VarChar(700)
+  type_contrat String?        @db.VarChar(255)
+  localisation String?        @db.VarChar(255)
+  salaire      String?        @db.VarChar(30)
+  posted_at    DateTime       @default(now()) @db.Timestamp(6)
+  statut       String?        @db.VarChar(255)
+  company_id   Int?
+  user_id      Int?
+  applications applications[]
+  users        users?         @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_jobs_user")
+  companies    companies?     @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model users {
+  id                                       Int            @id @default(autoincrement())
+  prenom                                   String?        @db.VarChar(100)
+  nom                                      String?        @db.VarChar(100)
+  email                                    String         @unique @db.VarChar(255)
+  date_naissance                           DateTime?      @db.Date
+  pays                                     String?        @db.VarChar(255)
+  ville                                    String?        @db.VarChar(255)
+  code_postal                              String?        @db.VarChar(5)
+  created_at                               DateTime       @default(now()) @db.Timestamp(6)
+  tel                                      String?        @db.Char(10)
+  mot_de_passe                             String         @db.VarChar(255)
+  type                                     String         @db.VarChar(10)
+  profile_cv_id                            Int?
+  entreprise_id                            Int?
+  applications                             applications[]
+  companies_companies_user_idTousers       companies[]    @relation("companies_user_idTousers")
+  cvs_cvs_user_idTousers                   cvs[]          @relation("cvs_user_idTousers")
+  jobs                                     jobs[]
+  companies_users_entreprise_idTocompanies companies?     @relation("users_entreprise_idTocompanies", fields: [entreprise_id], references: [id], map: "fk_users_entreprise")
+  cvs_users_profile_cv_idTocvs             cvs?           @relation("users_profile_cv_idTocvs", fields: [profile_cv_id], references: [id], onUpdate: NoAction)
+}

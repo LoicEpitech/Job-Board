@@ -1,0 +1,25 @@
+{
+  "name": "job-board",
+  "version": "1.0.0",
+  "description": "Application complète de gestion d'offres d'emploi avec React et Express.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoicEpitech/Job-Board.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LoicEpitech/Job-Board/issues"
+  },
+  "homepage": "https://github.com/LoicEpitech/Job-Board#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}

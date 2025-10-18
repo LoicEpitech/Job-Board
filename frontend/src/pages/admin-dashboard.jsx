@@ -90,6 +90,19 @@ function Admin() {
       : true
   );
 
+  // helper pour afficher/parse les dates pour input[type="date"]
+  const formatDateForInput = (val) => {
+    if (!val) return "";
+    const d = new Date(val);
+    if (isNaN(d)) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const isDateField = (col) => /(_at$|date)/i.test(col);
+
   return (
     <div className="admin-container">
       <h1 className="admin-title">Admin - Gestion des données</h1>
@@ -186,18 +199,28 @@ function Admin() {
                       "posted_at",
                     ].includes(col)
                 )
-                .map((col) => (
-                  <div key={col}>
-                    <label>{col}</label>
-                    <input
-                      type="text"
-                      value={editRow[col] || ""}
-                      onChange={(e) =>
-                        setEditRow({ ...editRow, [col]: e.target.value })
-                      }
-                    />
-                  </div>
-                ))}
+                .map((col) => {
+                  const dateField = isDateField(col);
+                  return (
+                    <div key={col}>
+                      <label>{col}</label>
+                      <input
+                        type={dateField ? "date" : "text"}
+                        value={
+                          dateField
+                            ? formatDateForInput(editRow[col])
+                            : editRow[col] || ""
+                        }
+                        onChange={(e) =>
+                          setEditRow({
+                            ...editRow,
+                            [col]: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  );
+                })}
               <button type="submit">Enregistrer</button>
               <button type="button" onClick={() => setEditRow(null)}>
                 Annuler

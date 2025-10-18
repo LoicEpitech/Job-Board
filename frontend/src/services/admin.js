@@ -12,7 +12,7 @@ export function useAdminService() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!res) return []; // si null → déjà redirigé
+    if (!res) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : data[table] || [];
   };
